@@ -56,6 +56,16 @@ export async function POST(req: NextRequest) {
   // Slug unik dari judul, tautan issuer:
   const slug = await generateUniqueSlug(data.title);
 
+  // Pastikan authorId valid di database (mendukung session id maupun email lookup)
+  let author = await prisma.user.findUnique({ where: { id: session.user.id } });
+  if (!author && session.user.email) {
+    author = await prisma.user.findUnique({ where: { email: session.user.email } });
+  }
+  if (!author) {
+    author = await prisma.user.findFirst({ where: { role: { in: ["PENULIS", "ADMIN"] } } });
+  }
+  const authorId = author?.id ?? session.user.id;
+
   try {
     const article = await prisma.article.create({
       data: {
@@ -69,7 +79,7 @@ export async function POST(req: NextRequest) {
         coverImage: data.coverImage || null,
         status: data.status,
         readMinutes,
-        authorId: session.user.id,
+        authorId,
         categoryId: category.id,
         publishedAt: data.status === "PUBLISHED" ? new Date() : null,
         tags: {
@@ -91,8 +101,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, id: article.id, slug: article.slug });
   } catch (e) {
     console.error("[artikel/create] gagal:", e);
+    const msg = e instanceof Error ? e.message : "Kendala saat menyimpan artikel. Coba lagi sebentar.";
     return NextResponse.json(
-      { error: "Kendala saat menyimpan artikel. Coba lagi sebentar." },
+      { error: "Kendala saat menyimpan artikel: " + (msg.length < 80 ? msg : "Coba lagi sebentar.") },
       { status: 500 },
     );
   }

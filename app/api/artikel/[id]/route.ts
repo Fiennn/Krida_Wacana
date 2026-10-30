@@ -27,7 +27,7 @@ async function guardOwnership(params: RouteParams["params"]) {
   const { id } = await params;
   const article = await prisma.article.findUnique({
     where: { id },
-    include: { images: true },
+    include: { images: true, author: true },
   });
   if (!article) {
     return {
@@ -38,7 +38,9 @@ async function guardOwnership(params: RouteParams["params"]) {
     };
   }
 
-  const isOwner = article.authorId === session.user.id;
+  const isOwner =
+    article.authorId === session.user.id ||
+    (!!session.user.email && article.author.email === session.user.email);
   const isAdmin = session.user.role === "ADMIN";
   const isPenulis = session.user.role === "PENULIS";
   if (!isAdmin && !isPenulis) {
