@@ -42,15 +42,6 @@ async function guardOwnership(params: RouteParams["params"]) {
     article.authorId === session.user.id ||
     (!!session.user.email && article.author.email === session.user.email);
   const isAdmin = session.user.role === "ADMIN";
-  const isPenulis = session.user.role === "PENULIS";
-  if (!isAdmin && !isPenulis) {
-    return {
-      error: NextResponse.json(
-        { error: "Akunmu belum diberi izin menulis. Hubungi admin sekolah." },
-        { status: 403 },
-      ),
-    };
-  }
   if (!isOwner && !isAdmin) {
     return {
       error: NextResponse.json(

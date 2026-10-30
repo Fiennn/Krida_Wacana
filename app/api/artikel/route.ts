@@ -18,17 +18,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Menulis hanya untuk guru/siswa yang disetujui admin
-  if (session.user.role !== "ADMIN" && session.user.role !== "PENULIS") {
-    return NextResponse.json(
-      {
-        error:
-          "Akunmu belum diberi izin menulis. Hubungi admin sekolah untuk mengubah peran menjadi penulis.",
-      },
-      { status: 403 },
-    );
-  }
-
   let body: unknown;
   try {
     body = await req.json();
