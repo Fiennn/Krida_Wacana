@@ -167,10 +167,19 @@ export async function getCategoriesWithCount() {
 
 /** Detail artikel berdasarkan slug (publik: hanya yang terbit). */
 export async function getArticleBySlug(slug: string) {
-  const a = await prisma.article.findUnique({
+  const decoded = decodeURIComponent(slug);
+  let a = await prisma.article.findUnique({
     where: { slug },
     include: articleInclude,
   });
+
+  if (!a && decoded !== slug) {
+    a = await prisma.article.findUnique({
+      where: { slug: decoded },
+      include: articleInclude,
+    });
+  }
+
   if (!a || a.status !== "PUBLISHED") return null;
 
   return {

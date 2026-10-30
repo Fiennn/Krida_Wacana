@@ -106,6 +106,18 @@ async function main() {
   // 3. Akun demo (guru penulis & pembaca)
   // ============================================================
   const demoHash = await bcrypt.hash("penulis123", 12);
+  const reni = await prisma.user.upsert({
+    where: { email: "reni@example.com" },
+    update: { name: "Reni Sudiatun, S.Pd.", role: "PENULIS" },
+    create: {
+      name: "Reni Sudiatun, S.Pd.",
+      email: "reni@example.com",
+      username: "renisudiatun",
+      hashedPassword: demoHash,
+      role: "PENULIS",
+      bio: "Guru di SD Negeri 2 Kemutug Lor. Menulis catatan kegiatan, pembelajaran, dan kabar sekolah.",
+    },
+  });
   const nadia = await prisma.user.upsert({
     where: { email: "nadia@example.com" },
     update: { role: "PENULIS" },
@@ -130,7 +142,7 @@ async function main() {
       bio: "Warga Baturraden yang senang membaca kabar kegiatan sekolah.",
     },
   });
-  console.log("✅ Akun demo siap (password: penulis123)");
+  console.log("✅ Akun demo siap: reni@example.com, nadia@example.com, bima@example.com (password: penulis123)");
 
   // ============================================================
   // 4. Artikel sekolah (2)
