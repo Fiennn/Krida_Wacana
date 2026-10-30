@@ -19,8 +19,22 @@ export default function ShareButton({ title }: { title: string }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  function trackShare(platform: string) {
+    if (typeof window === "undefined") return;
+    window.dispatchEvent(
+      new CustomEvent("krida_wacana_track_event", {
+        detail: {
+          type: "share",
+          title: `Membagikan Artikel: ${title}`,
+          details: `Melalui ${platform}`,
+        },
+      })
+    );
+  }
+
   async function handleCopy() {
     if (typeof window === "undefined") return;
+    trackShare("Salin Tautan");
     try {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
@@ -32,18 +46,21 @@ export default function ShareButton({ title }: { title: string }) {
 
   function handleWhatsApp() {
     if (typeof window === "undefined") return;
+    trackShare("WhatsApp");
     const text = encodeURIComponent(`*${title}*\n\nBaca artikel selengkapnya di:\n${window.location.href}`);
     window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank", "noopener,noreferrer");
   }
 
   function handleTwitter() {
     if (typeof window === "undefined") return;
+    trackShare("Twitter / X");
     const text = encodeURIComponent(`${title}\n${window.location.href}`);
     window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank", "noopener,noreferrer");
   }
 
   function handleFacebook() {
     if (typeof window === "undefined") return;
+    trackShare("Facebook");
     const url = encodeURIComponent(window.location.href);
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, "_blank", "noopener,noreferrer");
   }

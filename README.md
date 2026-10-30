@@ -38,6 +38,19 @@ sedangkan penulisan hanya untuk akun yang sudah disetujui admin sekolah
 - Halaman artikel: cover, isi artikel, tag, komentar, tombol suka, tombol simpan,
   dan tombol ikuti penulis.
 - SEO: metadata per halaman, Open Graph, favicon, dan judul tab sesuai sekolah.
+- **Buku Tamu Pengunjung**: Pengunjung dapat mengisi jejak kunjungan (Nama, Status/Peran, Asal Instansi, Keperluan, Kontak) melalui tombol melayang (floating action) atau bar atas.
+- **Tracking Aktivitas Otomatis**: Pelacakan otomatis aktivitas membuka halaman, membaca artikel, mencari artikel, dan membagikan artikel secara aman.
+
+**Buku Tamu & Track Record Pengunjung (Khusus Admin)**
+
+- Dashboard resmi `/admin/track-record` (diakses lewat panel admin atau menu akun admin).
+- 4 Kartu Statistik Asli: Total Kunjungan, Kunjungan Hari Ini (WIB), Pengunjung Terdaftar, dan Pengunjung Anonim.
+- Tabel riwayat kunjungan lengkap dengan waktu WIB, identitas pengunjung, aktivitas terakhir, perangkat/browser, dan durasi kunjungan.
+- Filter real-time: Semua Kunjungan, Hari Ini, Pengunjung Terdaftar, Pengunjung Anonim, Siswa & Guru, Tamu Umum.
+- Pencarian real-time pada nama, kontak, instansi, aktivitas, dan perangkat.
+- Ekspor data riwayat ke format Excel / CSV (UTF-8 BOM).
+- Pratinjau dan cetak laporan formal A4 resmi untuk evaluasi literasi & akreditasi sekolah SDN 2 Kemutug Lor.
+- Fitur pencadangan: Backup JSON, Pulihkan JSON, dan Reset Data.
 
 **Akun**
 
@@ -243,3 +256,28 @@ public/logo/               Tiga file logo (ganti dengan logo resmi)
 - Folder `public/uploads/` harus dapat ditulis oleh proses server
   (atau gunakan object storage untuk deployment serverless).
 - Jangan commit `.env`, `prisma/dev.db`, dan isi `public/uploads/`.
+
+---
+
+## Arsitektur Buku Tamu & Track Record (Stand-alone LocalStorage)
+
+Fitur Buku Tamu dan Track Record Pengunjung di Krida Wacana diimplementasikan secara mandiri menggunakan JavaScript Browser API (`localStorage` & `sessionStorage`) tanpa bergantung pada server database eksternal:
+
+### 1. Struktur Penyimpanan
+- `krida_wacana_guests`: Menyimpan entri formulir Buku Tamu resmi yang diisi pengunjung.
+- `krida_wacana_visitors`: Menyimpan riwayat sesi kunjungan unik (nomor urut, waktu WIB, durasi, perangkat, OS, browser, identitas).
+- `krida_wacana_activities`: Mencatat log kronologis aktivitas navigasi, membaca artikel, pencarian, dan pembagian artikel.
+- `krida_wacana_session_id`: Disimpan pada `sessionStorage` untuk mengelompokkan aktivitas satu sesi kunjungan dan mencegah duplikasi hitungan akibat refresh halaman.
+- `krida_wacana_visitor_id`: Disimpan pada `localStorage` sebagai identifier perangkat pengunjung.
+
+### 2. Keterbatasan & Mekanisme Pencadangan (PENTING)
+> **Perhatian:**
+> Karena sistem ini tidak menggunakan database cloud terpusat, `localStorage` menyimpan data pada browser dan perangkat tempat data tersebut dibuat.
+> Data kunjungan dari perangkat pengunjung lain tidak otomatis terkirim ke dashboard admin di komputer yang berbeda.
+> 
+> Untuk memindahkan data antar perangkat atau melakukan arsip administrasi, gunakan fitur:
+> 1. **Ekspor Excel / CSV**: Mengunduh seluruh riwayat kunjungan dalam format spreadsheet.
+> 2. **Backup JSON**: Mengunduh salinan berkas cadangan data terstruktur.
+> 3. **Pulihkan JSON**: Mengimpor berkas cadangan JSON dari perangkat lain ke dashboard admin.
+> 4. **Cetak Rekap A4**: Mencetak lembar laporan formal bertanda tangan resmi Kepala Sekolah dan Administrator Krida Wacana.
+

@@ -11,6 +11,9 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SessionProviderWrapper from "@/components/providers/SessionProviderWrapper";
 import { auth } from "@/lib/auth";
+import { Suspense } from "react";
+import VisitorTracker from "@/components/tracking/VisitorTracker";
+import { FloatingGuestBookButton } from "@/components/tracking/GuestBookModal";
 import "./globals.css";
 
 const fontSerif = Playfair_Display({
@@ -80,9 +83,13 @@ export default async function RootLayout({
         className={`${fontSerif.variable} ${fontSans.variable} flex min-h-screen flex-col font-sans`}
       >
         <SessionProviderWrapper session={session}>
+          <Suspense fallback={null}>
+            <VisitorTracker />
+          </Suspense>
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
+          <FloatingGuestBookButton />
         </SessionProviderWrapper>
       </body>
     </html>

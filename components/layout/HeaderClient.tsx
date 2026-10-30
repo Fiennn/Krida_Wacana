@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import BrandLogo from "@/components/brand/BrandLogo";
 import UserMenu from "@/components/layout/UserMenu";
+import GuestBookModal from "@/components/tracking/GuestBookModal";
 import { HEADER_NAV, SCHOOL_NAME_UPPER } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ function bolehMenulis(user: UserProp) {
 export default function HeaderClient({ user }: { user: UserProp }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [guestBookOpen, setGuestBookOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-40">
@@ -33,7 +35,16 @@ export default function HeaderClient({ user }: { user: UserProp }) {
             <span className="sm:hidden">SD Negeri 2 Kemutug Lor</span>
             <span className="hidden sm:inline">{SCHOOL_NAME_UPPER}</span>
           </p>
-          <div className="flex shrink-0 items-center gap-4 pl-3">
+          <div className="flex shrink-0 items-center gap-3 pl-3">
+            <button
+              type="button"
+              onClick={() => setGuestBookOpen(true)}
+              className="flex items-center gap-1 font-semibold text-amber-brand/90 transition-colors hover:text-amber-brand"
+            >
+              <span>✍️</span>
+              <span>Buku Tamu</span>
+            </button>
+            <span className="text-white/20">|</span>
             <Link href="/cari" className="transition-colors hover:text-amber-brand">
               Pencarian
             </Link>
@@ -168,12 +179,25 @@ export default function HeaderClient({ user }: { user: UserProp }) {
                   </Link>
                 </li>
               )}
+              <li className="mt-1 border-t border-white/10 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    setGuestBookOpen(true);
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-amber-brand transition-colors hover:bg-white/10"
+                >
+                  <span>✍️</span>
+                  <span>Isi Buku Tamu</span>
+                </button>
+              </li>
               {!user && (
-                <li className="mt-1 border-t border-white/10 pt-1">
+                <li className="mt-1">
                   <Link
                     href="/masuk"
                     onClick={() => setMobileOpen(false)}
-                    className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-amber-brand transition-colors hover:bg-white/10"
+                    className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-white/80 transition-colors hover:bg-white/10"
                   >
                     Masuk
                   </Link>
@@ -183,6 +207,12 @@ export default function HeaderClient({ user }: { user: UserProp }) {
           </nav>
         )}
       </div>
+
+      {/* Modal Buku Tamu Pengunjung */}
+      <GuestBookModal
+        isOpen={guestBookOpen}
+        onClose={() => setGuestBookOpen(false)}
+      />
     </header>
   );
 }

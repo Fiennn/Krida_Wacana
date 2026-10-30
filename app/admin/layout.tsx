@@ -13,6 +13,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
   const nav = [
     { href: "/admin", label: "Ringkasan", icon: "grid" },
+    { href: "/admin/track-record", label: "Track Record", icon: "chart" },
     { href: "/admin/artikel", label: "Artikel", icon: "doc" },
     { href: "/admin/komentar", label: "Komentar", icon: "chat" },
     { href: "/admin/kategori", label: "Kategori", icon: "tag" },
@@ -62,6 +63,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 function AdminIcon({ name }: { name: string }) {
   const paths: Record<string, string> = {
     grid: "M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z",
+    chart: "M3 3v18h18M7 16l4-4 4 4 5-6",
     doc: "M14 3v5h5M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8l-4-5z",
     chat: "M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z",
     tag: "M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8zM7 7h.01",

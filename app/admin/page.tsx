@@ -60,6 +60,30 @@ export default async function AdminPage() {
         ))}
       </div>
 
+      {/* Banner Akses Buku Tamu & Track Record */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-navy/20 bg-gradient-to-r from-navy to-navy-dark p-6 text-white shadow-card">
+        <div className="space-y-1">
+          <span className="inline-block rounded-md bg-amber-brand/25 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-widest text-amber-brand">
+            Fitur Resmi Evaluasi & Akreditasi
+          </span>
+          <h2 className="font-serif text-xl font-bold text-white">
+            Buku Tamu & Track Record Pengunjung
+          </h2>
+          <p className="text-xs text-white/75 max-w-xl">
+            Pantau statistik kunjungan, riwayat pembaca artikel, perincian perangkat & browser, serta unduh rekap Excel atau cetak laporan resmi A4.
+          </p>
+        </div>
+        <Link
+          href="/admin/track-record"
+          className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-amber-brand px-5 py-2.5 text-xs font-bold text-navy-dark shadow-md transition-all hover:bg-amber-highlight active:scale-95"
+        >
+          <span>Buka Dashboard Rekap</span>
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+          </svg>
+        </Link>
+      </div>
+
       {/* Aktivitas terbaru */}
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-2xl border border-line bg-white p-5 shadow-card">

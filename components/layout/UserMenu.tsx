@@ -42,7 +42,12 @@ export default function UserMenu({
       ? [{ label: "Tulis Artikel", href: "/tulis" }]
       : []),
     { label: "Tersimpan", href: "/tersimpan" },
-    ...(user.role === "ADMIN" ? [{ label: "Panel Admin", href: "/admin" }] : []),
+    ...(user.role === "ADMIN"
+      ? [
+          { label: "Panel Admin", href: "/admin" },
+          { label: "Buku Tamu & Track Record", href: "/admin/track-record" },
+        ]
+      : []),
   ];
 
   return (
