@@ -167,7 +167,7 @@ export async function getCategoriesWithCount() {
 
 /** Detail artikel berdasarkan slug (publik: hanya yang terbit). */
 export async function getArticleBySlug(slug: string) {
-  const decoded = decodeURIComponent(slug);
+  const decoded = decodeURIComponent(slug).trim();
   let a = await prisma.article.findUnique({
     where: { slug },
     include: articleInclude,
@@ -180,7 +180,45 @@ export async function getArticleBySlug(slug: string) {
     });
   }
 
+  // Toleransi bila ada perbedaan strip dan spasi (misal slug lama atau URL browser)
+  if (!a) {
+    const slugHyphen = decoded.replace(/\s+/g, "-");
+    const slugSpace = decoded.replace(/-/g, " ");
+    a = await prisma.article.findFirst({
+      where: {
+        OR: [
+          { slug: slugHyphen },
+          { slug: slugSpace },
+          { slug: { equals: decoded, mode: "insensitive" } },
+        ],
+      },
+      include: articleInclude,
+    });
+  }
+
   if (!a || a.status !== "PUBLISHED") return null;
+
+  // Normalisasi slug yang masih mengandung spasi agar URL berikutnya selalu bersih
+  if (/\s/.test(a.slug)) {
+    const cleanSlug = a.slug
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 80);
+
+    if (cleanSlug) {
+      try {
+        await prisma.article.update({
+          where: { id: a.id },
+          data: { slug: cleanSlug },
+        });
+        a.slug = cleanSlug;
+      } catch {
+        // Abaikan jika terjadi bentrok unik
+      }
+    }
+  }
 
   return {
     id: a.id,

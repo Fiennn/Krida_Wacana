@@ -60,6 +60,120 @@ body {
   @apply prose-blockquote:border-l-amber-brand;
 }
 
+.prose-article h1 {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 2.125rem;
+  font-weight: 700;
+  color: #0B1F4B;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.25;
+}
+
+.prose-article h2 {
+  position: relative;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0B1F4B;
+  margin-top: 2.75rem;
+  margin-bottom: 1rem;
+  padding-left: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #F1F5F9;
+  line-height: 1.3;
+}
+
+.prose-article h2::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 15%;
+  bottom: 15%;
+  width: 4px;
+  background: #FBBF24;
+  border-radius: 4px;
+}
+
+.prose-article > h2:first-child {
+  margin-top: 0.5rem;
+}
+
+.prose-article h3 {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1E3A8A;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.35;
+}
+
+.prose-article p {
+  color: #334155;
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  margin-top: 1.15rem;
+  margin-bottom: 1.25rem;
+}
+
+.prose-article > p:first-of-type {
+  font-size: 1.15rem;
+  line-height: 1.9;
+  color: #1e293b;
+}
+
+/* Modifier ukuran teks interaktif */
+.prose-size-lg p,
+.prose-size-lg li {
+  font-size: 1.1875rem !important;
+  line-height: 1.95 !important;
+}
+
+.prose-size-xl p,
+.prose-size-xl li {
+  font-size: 1.3rem !important;
+  line-height: 2.05 !important;
+}
+
+.prose-article blockquote {
+  border-left: 4px solid #FBBF24;
+  background: linear-gradient(to right, #FFFBEB, #FEF3C720);
+  padding: 1.125rem 1.375rem;
+  border-radius: 0 0.875rem 0.875rem 0;
+  font-style: italic;
+  color: #1E293B;
+  margin: 1.75rem 0;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.prose-article ul {
+  list-style-type: disc;
+  padding-left: 1.75rem;
+  margin: 1.25rem 0;
+  color: #334155;
+  font-size: 1.0625rem;
+  line-height: 1.8;
+}
+
+.prose-article ol {
+  list-style-type: decimal;
+  padding-left: 1.75rem;
+  margin: 1.25rem 0;
+  color: #334155;
+  font-size: 1.0625rem;
+  line-height: 1.8;
+}
+
+.prose-article li {
+  margin-bottom: 0.5rem;
+}
+
+.prose-article strong {
+  font-weight: 700;
+  color: #0F172A;
+}
+
 /* ===================== Editor Tiptap ===================== */
 
 /* Placeholder editor */
