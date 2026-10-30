@@ -15,6 +15,10 @@ import type { UserRole } from "@/types/next-auth";
  * sehingga /admin dan /tulis ikut menolak admin/penulis.
  */
 export const authConfig = {
+  trustHost: true,
+  secret:
+    process.env.AUTH_SECRET ||
+    "dev-only-secret-krida-wacana-7d1f39b2c8a4e6f0b5d2a9c3e1f8b6d4",
   pages: {
     signIn: "/masuk",
     error: "/masuk", // OAuth error dikirim balik ke halaman masuk
