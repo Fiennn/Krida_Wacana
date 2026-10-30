@@ -34,14 +34,6 @@ export default function HeaderClient({ user }: { user: UserProp }) {
             <span className="hidden sm:inline">{SCHOOL_NAME_UPPER}</span>
           </p>
           <div className="flex shrink-0 items-center gap-4 pl-3">
-            {bolehMenulis(user) && (
-              <>
-                <Link href="/tulis" className="hidden transition-colors hover:text-amber-brand sm:block">
-                  Tulis Artikel
-                </Link>
-                <span className="hidden h-3 w-px bg-white/20 sm:block" aria-hidden />
-              </>
-            )}
             <Link href="/cari" className="transition-colors hover:text-amber-brand">
               Pencarian
             </Link>
@@ -78,6 +70,21 @@ export default function HeaderClient({ user }: { user: UserProp }) {
 
           {/* Aksi kanan: Masuk/Daftar (belum login) atau avatar (login) */}
           <div className="flex shrink-0 items-center gap-2.5">
+            {/* Tombol Ayo Menulis — tampil untuk yang boleh menulis */}
+            {bolehMenulis(user) && (
+              <Link
+                href="/tulis"
+                className={cn(
+                  "inline-flex h-9 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-bold shadow-sm sm:h-10 sm:px-5 sm:text-sm",
+                  "bg-emerald-500 text-white transition-all hover:bg-emerald-400 hover:shadow-md active:scale-95",
+                )}
+              >
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+                </svg>
+                Ayo Menulis
+              </Link>
+            )}
             {user ? (
               <UserMenu user={user} />
             ) : (
@@ -152,9 +159,12 @@ export default function HeaderClient({ user }: { user: UserProp }) {
                   <Link
                     href="/tulis"
                     onClick={() => setMobileOpen(false)}
-                    className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-amber-brand transition-colors hover:bg-white/10"
+                    className="flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-3 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-400"
                   >
-                    Tulis Artikel
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+                    </svg>
+                    Ayo Menulis
                   </Link>
                 </li>
               )}
