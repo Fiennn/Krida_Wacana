@@ -1,0 +1,3 @@
+Folder ini menyimpan gambar yang diunggah user (cover, foto artikel, galeri).
+Isi file unggahan tidak dilacak Git (lihat .gitignore). File ini memastikan
+direktori tetap ada di repository.

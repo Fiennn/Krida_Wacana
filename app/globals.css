@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-navy: #0b1f4b;
+  --brand-navy-dark: #07142f;
+  --brand-amber: #fbbf24;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-surface-muted text-ink antialiased;
+}
+
+/* ===================== Utilitas kustom ===================== */
+
+/* Kartu kaca (glassmorphism) di atas latar navy */
+@layer utilities {
+  .glass {
+    @apply border border-white/15 bg-white/10 backdrop-blur-md;
+  }
+  .glass-strong {
+    @apply border border-white/20 bg-white/15 backdrop-blur-lg;
+  }
+  /* Sembunyikan scrollbar untuk chip kategori yang digeser horizontal */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  /* Teks 2 baris lalu elipsis (ringkasan kartu artikel) */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* ===================== Prose konten artikel ===================== */
+
+/* Warna default tipografi artikel agar senada dengan brand */
+.prose-article {
+  @apply prose prose-slate max-w-none dark:prose-invert;
+  @apply prose-headings:font-serif prose-headings:text-ink;
+  @apply prose-a:text-navy-royal prose-a:underline-offset-2 hover:prose-a:text-navy;
+  @apply prose-img:rounded-xl prose-img:shadow-card;
+  @apply prose-blockquote:border-l-amber-brand;
+}
+
+/* ===================== Editor Tiptap ===================== */
+
+/* Placeholder editor */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: #94a3b8;
+}
+
+.ProseMirror:focus {
+  outline: none;
+}
+
+/* Konten di dalam editor memakai gaya artikel */
+.ProseMirror {
+  color: #0f172a;
+}
+.ProseMirror h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.ProseMirror h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+.ProseMirror p {
+  margin: 0.65rem 0;
+  line-height: 1.8;
+}
+.ProseMirror ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin: 0.65rem 0;
+}
+.ProseMirror ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin: 0.65rem 0;
+}
+.ProseMirror blockquote {
+  border-left: 4px solid #fbbf24;
+  padding-left: 1rem;
+  font-style: italic;
+  color: #334155;
+  margin: 1rem 0;
+}
+.ProseMirror a {
+  color: #1e3a8a;
+  text-decoration: underline;
+}
+.ProseMirror img {
+  border-radius: 0.75rem;
+  margin: 1rem 0;
+  max-width: 100%;
+  height: auto;
+}
+.ProseMirror code {
+  background: #f5f7fb;
+  border-radius: 0.25rem;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.9em;
+}
+.ProseMirror pre {
+  background: #0b1f4b;
+  color: #f5f7fb;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  font-size: 0.9em;
+}
+.ProseMirror hr {
+  border: 0;
+  border-top: 2px solid #e2e8f0;
+  margin: 1.5rem 0;
+}
+.ProseMirror .selection {
+  background: rgba(251, 191, 36, 0.3);
+}
