@@ -17,10 +17,6 @@ export default async function TulisEditPage({ params }: PageProps) {
   const { id } = await params;
   const session = await auth();
   if (!session?.user?.id) redirect(`/masuk?next=/tulis/${id}`);
-  // Menulis hanya untuk guru/siswa yang disetujui admin
-  if (session.user.role !== "ADMIN" && session.user.role !== "PENULIS") {
-    redirect("/dashboard?izin=menulis");
-  }
 
   const article = await prisma.article.findUnique({
     where: { id },

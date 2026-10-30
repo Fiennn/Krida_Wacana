@@ -70,8 +70,8 @@ export default function HeaderClient({ user }: { user: UserProp }) {
 
           {/* Aksi kanan: Masuk/Daftar (belum login) atau avatar (login) */}
           <div className="flex shrink-0 items-center gap-2.5">
-            {/* Tombol Ayo Menulis — tampil untuk yang boleh menulis */}
-            {bolehMenulis(user) && (
+            {/* Tombol Ayo Menulis — tampil untuk semua user yang sudah login */}
+            {user && (
               <Link
                 href="/tulis"
                 className={cn(
@@ -154,7 +154,7 @@ export default function HeaderClient({ user }: { user: UserProp }) {
                   </Link>
                 </li>
               ))}
-              {bolehMenulis(user) && (
+              {user && (
                 <li className="mt-1 border-t border-white/10 pt-1">
                   <Link
                     href="/tulis"

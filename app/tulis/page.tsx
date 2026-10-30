@@ -13,10 +13,6 @@ export const metadata = {
 export default async function TulisPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/masuk?next=/tulis");
-  // Menulis hanya untuk guru/siswa yang disetujui admin
-  if (session.user.role !== "ADMIN" && session.user.role !== "PENULIS") {
-    redirect("/dashboard?izin=menulis");
-  }
 
   const kategoriList = await prisma.category.findMany({
     orderBy: [{ name: "asc" }],
