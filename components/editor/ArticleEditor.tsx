@@ -233,6 +233,7 @@ export default function ArticleEditor({ kategoriList, initial }: Props) {
   const [status, setStatus] = useState<"DRAFT" | "PUBLISHED">(initial?.status ?? "DRAFT");
 
   const [saving, setSaving] = useState(false);
+  const [savingAction, setSavingAction] = useState<"DRAFT" | "PUBLISHED" | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
@@ -316,6 +317,7 @@ export default function ArticleEditor({ kategoriList, initial }: Props) {
       .slice(0, 8);
 
     setSaving(true);
+    setSavingAction(tujuanStatus);
     try {
       const payload = {
         title: title.trim(),
@@ -341,12 +343,17 @@ export default function ArticleEditor({ kategoriList, initial }: Props) {
         setFormError(json?.error ?? "Gagal menyimpan artikel.");
         return;
       }
-      router.push("/dashboard?tersimpan=1");
+      if (tujuanStatus === "PUBLISHED" && json?.slug) {
+        router.push(`/artikel/${json.slug}`);
+      } else {
+        router.push("/dashboard?tersimpan=1");
+      }
       router.refresh();
     } catch {
       setFormError("Kendala jaringan saat menyimpan. Coba lagi sebentar.");
     } finally {
       setSaving(false);
+      setSavingAction(null);
     }
   }
 
@@ -532,30 +539,29 @@ export default function ArticleEditor({ kategoriList, initial }: Props) {
           </div>
         )}
 
-        {/* Tombol utama sesuai status dipilih + tombol aksi cepat */}
+        {/* Tombol utama untuk menyimpan draf atau menerbitkan artikel */}
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <button
             type="button"
-            onClick={() => setStatus("DRAFT")}
+            onClick={() => simpan("DRAFT")}
             disabled={saving}
             className="inline-flex h-12 flex-1 items-center justify-center rounded-full border border-line bg-white px-6 text-sm font-semibold text-ink transition-colors hover:border-navy-royal hover:text-navy-royal disabled:opacity-60"
           >
-            {saving && initial?.status === "DRAFT" ? "Menyimpan…" : "Simpan sebagai Draf"}
+            {savingAction === "DRAFT" ? "Menyimpan Draf…" : "Simpan sebagai Draf"}
           </button>
           <button
             type="button"
-            onClick={() => setStatus("PUBLISHED")}
+            onClick={() => simpan("PUBLISHED")}
             disabled={saving}
             className="inline-flex h-12 flex-1 items-center justify-center rounded-full bg-amber-brand px-6 text-sm font-bold text-navy-dark transition-all hover:bg-amber-highlight hover:shadow-md active:scale-[0.98] disabled:opacity-60"
           >
-            {saving && initial?.status === "PUBLISHED" ? "Menerbitkan…" : "Terbitkan Sekarang"}
+            {savingAction === "PUBLISHED" ? "Menerbitkan…" : "Terbitkan Sekarang 🚀"}
           </button>
         </div>
         <p className="mt-3 text-center text-xs text-ink-secondary sm:text-left">
-          Tekan tombol di atas sesuai status yang tampil terpilih (sedang:{" "}
-          <strong className="text-ink">{status === "DRAFT" ? "Draf" : "Terbit"}</strong>).
+          Klik tombol di atas untuk langsung menyimpan draf atau menerbitkan tulisan.
           <Link href="/dashboard" className="ml-2 text-navy-royal underline-offset-2 hover:underline">
-            Kembali ke dashboard tanpa menyimpan
+            Kembali ke dashboard
           </Link>
         </p>
       </div>
