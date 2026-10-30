@@ -24,13 +24,18 @@ export const authConfig = {
     maxAge: 30 * 24 * 60 * 60, // 30 hari
   },
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      authorization: {
-        params: { prompt: "select_account" },
-      },
-    }),
+    ...(process.env.GOOGLE_CLIENT_ID &&
+    process.env.GOOGLE_CLIENT_ID !== "ISI-CLIENT-ID-GOOGLE"
+      ? [
+          Google({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            authorization: {
+              params: { prompt: "select_account" },
+            },
+          }),
+        ]
+      : []),
   ],
   callbacks: {
     // Simpan id, username, dan role ke dalam isi jwt

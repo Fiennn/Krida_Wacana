@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import LoginPasswordForm from "@/components/auth/LoginPasswordForm";
 import GoogleButton from "@/components/auth/GoogleButton";
 import { AuthBackdrop, AuthCard, AlertError } from "@/components/auth/auth-ui";
-import { auth, signIn as serverSignIn } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 
 /** Pesan error OAuth yang diarahkan Auth.js kembali ke /masuk */
 const OAUTH_ERROR_MESSAGE: Record<string, string> = {
@@ -51,46 +51,10 @@ export default async function MasukPage({ searchParams }: PageProps) {
     redirect(tujuan);
   }
 
-  // Jika URL Google belum dikonfigurasi, tampilkan pesan yang ramah
-  if (
-    !process.env.GOOGLE_CLIENT_ID ||
-    process.env.GOOGLE_CLIENT_ID === "ISI-CLIENT-ID-GOOGLE"
-  ) {
-    return (
-      <AuthBackdrop>
-        <AuthCard
-          title="Maaf, login Google belum aktif"
-          subtitle="Belum ada konfigurasi Client ID Google di server ini."
-          footer={
-            <span>
-              Sudah punya akun?{" "}
-              <Link href="/daftar" className="font-semibold text-amber-brand hover:underline">
-                Daftar di sini
-              </Link>
-            </span>
-          }
-        >
-          <AlertError message="Login Google belum aktif di server ini." />
-          <p className="text-sm text-white/70">
-            Admin dapat mengaktifkannya dengan mengisi{" "}
-            <code className="rounded bg-white/10 px-1.5 py-0.5 text-amber-brand">
-              GOOGLE_CLIENT_ID
-            </code>{" "}
-            dan{" "}
-            <code className="rounded bg-white/10 px-1.5 py-0.5 text-amber-brand">
-              GOOGLE_CLIENT_SECRET
-            </code>{" "}
-            pada file <code className="rounded bg-white/10 px-1.5 py-0.5 text-amber-brand">.env</code>. Langkahnya
-            ada di README (bagian Setup Google OAuth). Sementara itu, kamu
-            tetap bisa masuk menggunakan email + password di bawah.
-          </p>
-          <div className="mt-6">
-            <LoginPasswordForm callbackUrl={tujuanAman} />
-          </div>
-        </AuthCard>
-      </AuthBackdrop>
-    );
-  }
+  const hasGoogle = Boolean(
+    process.env.GOOGLE_CLIENT_ID &&
+    process.env.GOOGLE_CLIENT_ID !== "ISI-CLIENT-ID-GOOGLE"
+  );
 
   const oauthError = params.error ? OAUTH_ERROR_MESSAGE[params.error] ?? OAUTH_ERROR_MESSAGE.Default : null;
   const callbackUrl = tujuanAman;
@@ -99,7 +63,7 @@ export default async function MasukPage({ searchParams }: PageProps) {
     <AuthBackdrop>
       <AuthCard
         title="Masuk ke Krida Wacana"
-        subtitle="Portal artikel SD Negeri 2 Kemutug Lor. Masuk untuk membaca dan berdiskusi."
+        subtitle="Portal artikel SD Negeri 2 Kemutug Lor. Masuk dengan email & password atau akun demo."
         footer={
           <span>
             Belum punya akun?{" "}
@@ -111,18 +75,36 @@ export default async function MasukPage({ searchParams }: PageProps) {
       >
         {oauthError && <AlertError message={oauthError} />}
 
-        {/* Tombol utama Google */}
-        <GoogleButton callbackUrl={callbackUrl} />
+        {hasGoogle && (
+          <>
+            <GoogleButton callbackUrl={callbackUrl} />
+            <div className="my-6 flex items-center gap-4">
+              <span className="h-px flex-1 bg-white/15" aria-hidden />
+              <span className="text-xs font-semibold uppercase tracking-widest text-white/40">atau</span>
+              <span className="h-px flex-1 bg-white/15" aria-hidden />
+            </div>
+          </>
+        )}
 
-        {/* Pemisah "atau" */}
-        <div className="my-6 flex items-center gap-4">
-          <span className="h-px flex-1 bg-white/15" aria-hidden />
-          <span className="text-xs font-semibold uppercase tracking-widest text-white/40">atau</span>
-          <span className="h-px flex-1 bg-white/15" aria-hidden />
-        </div>
-
-        {/* Alternatif email + password */}
+        {/* Form Login Email + Password */}
         <LoginPasswordForm callbackUrl={callbackUrl} />
+
+        {/* Informasi Akun Demo yang Bisa Langsung Dipakai Menulis */}
+        <div className="mt-6 rounded-2xl border border-white/15 bg-white/5 p-4 text-xs text-white/80">
+          <p className="font-bold text-amber-brand">🔑 Akun Langsung Pakai (Bisa Nulis):</p>
+          <div className="mt-2.5 space-y-1.5 text-white/75">
+            <div className="rounded-lg bg-white/5 p-2">
+              <span className="font-semibold text-white">Akun Guru (Penulis):</span>
+              <p className="font-mono text-amber-brand">Email: nadia@example.com</p>
+              <p className="font-mono text-amber-brand">Password: penulis123</p>
+            </div>
+            <div className="rounded-lg bg-white/5 p-2">
+              <span className="font-semibold text-white">Akun Admin (Semua Akses):</span>
+              <p className="font-mono text-amber-brand">Email: admin@kridawacana.id</p>
+              <p className="font-mono text-amber-brand">Password: admin1234</p>
+            </div>
+          </div>
+        </div>
       </AuthCard>
     </AuthBackdrop>
   );

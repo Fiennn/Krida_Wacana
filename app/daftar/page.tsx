@@ -26,11 +26,16 @@ export default async function DaftarPage({ searchParams }: PageProps) {
       ? params.next
       : "/";
 
+  const hasGoogle = Boolean(
+    process.env.GOOGLE_CLIENT_ID &&
+    process.env.GOOGLE_CLIENT_ID !== "ISI-CLIENT-ID-GOOGLE"
+  );
+
   return (
     <AuthBackdrop>
       <AuthCard
         title="Buat Akun Krida Wacana"
-        subtitle="Daftar gratis. Akun baru berstatus pembaca; admin dapat memberi izin menulis."
+        subtitle="Daftar gratis dengan email dan password. Akun baru berstatus pembaca; admin dapat memberi izin menulis."
         footer={
           <span>
             Sudah punya akun?{" "}
@@ -40,18 +45,19 @@ export default async function DaftarPage({ searchParams }: PageProps) {
           </span>
         }
       >
-        {/* Daftar cepat lewat Google (rekomendasi) */}
-        <GoogleButton
-          callbackUrl={callbackUrl}
-          label="Daftar dengan Google"
-        />
-
-        {/* Pemisah "atau" */}
-        <div className="my-6 flex items-center gap-4">
-          <span className="h-px flex-1 bg-white/15" aria-hidden />
-          <span className="text-xs font-semibold uppercase tracking-widest text-white/40">atau</span>
-          <span className="h-px flex-1 bg-white/15" aria-hidden />
-        </div>
+        {hasGoogle && (
+          <>
+            <GoogleButton
+              callbackUrl={callbackUrl}
+              label="Daftar dengan Google"
+            />
+            <div className="my-6 flex items-center gap-4">
+              <span className="h-px flex-1 bg-white/15" aria-hidden />
+              <span className="text-xs font-semibold uppercase tracking-widest text-white/40">atau</span>
+              <span className="h-px flex-1 bg-white/15" aria-hidden />
+            </div>
+          </>
+        )}
 
         <RegisterForm />
       </AuthCard>
