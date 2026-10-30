@@ -1,8 +1,7 @@
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 /**
- * Pustaka query Prisma untuk halaman publik.
+ * Pustaka query untuk halaman publik.
  * Semua data dirapihkan jadi bentuk `ArticleCardData` agar komponen UI sederhana.
  */
 
@@ -34,6 +33,20 @@ const publishedFilter = {
   publishedAt: { not: null },
 } as const;
 
+type PrismaArticleWithInclude = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  coverImage: string | null;
+  views: number;
+  readMinutes: number;
+  publishedAt: Date | null;
+  category: { name: string; slug: string };
+  author: { name: string | null; username: string; image: string | null };
+  _count: { likes: number; comments: number };
+};
+
 function toCard(a: PrismaArticleWithInclude): ArticleCardData {
   return {
     id: a.id,
@@ -53,10 +66,6 @@ function toCard(a: PrismaArticleWithInclude): ArticleCardData {
     likesCount: a._count.likes,
   };
 }
-
-type PrismaArticleWithInclude = Prisma.ArticleGetPayload<{
-  include: typeof articleInclude;
-}>;
 
 // ==============================================================
 

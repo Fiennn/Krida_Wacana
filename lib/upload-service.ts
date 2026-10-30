@@ -11,11 +11,13 @@ import { Buffer } from "node:buffer";
  * supaya cukup ganti IMPLEMENTASI di bawah jika suatu saat berpindah
  * ke Cloudinary / S3 (interface fungsi tidak berubah).
  *
- * Provider saat ini: local (folder /public/uploads).
- * Untuk ganti provider:
- *   1. Tambahkan branch di `simpanFile()` (mis. upload ke S3 via SDK).
- *   2. Kembalikan URL publik hasilnya.
- *   3. Set UPLOAD_PROVIDER=s3 pada .env bila perlu memilih jalur.
+ * Provider otomatis:
+ *   - Jika env BLOB_READ_WRITE_TOKEN tersedia  -> Vercel Blob (produksi/Vercel).
+ *   - Jika tidak tersedia                     -> folder lokal /public/uploads
+ *                                                (development di komputer sendiri).
+ *
+ * Catatan: filesystem di Vercel bersifat read-only, jadi unggahan gambar
+ * WAJIB lewat Vercel Blob di produksi.
  * ============================================================
  */
 
@@ -30,7 +32,7 @@ const ALLOWED = {
 } as const;
 
 export type UploadResult = {
-  url: string;        // path publik: /uploads/week.jpg
+  url: string;        // URL publik: https://…blob.vercel-storage.com/… atau /uploads/…
   width: number;
   height: number;
   bytes: number;
@@ -47,6 +49,11 @@ const PRESETS: Record<Preset, { maxWidth: number; quality: number }> = {
 };
 
 export class UploadError extends Error {}
+
+/** True bila penyimpanan memakai Vercel Blob. */
+export function pakaiBlob() {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+}
 
 /** Validasi & kompres/resize gambar, lalu simpan. */
 export async function simpanUploadGambar(
@@ -76,7 +83,7 @@ export async function simpanUploadGambar(
 
   const meta = await sharp(processed).metadata();
 
-  // ---------- Simpan (provider lokal) ----------
+  // ---------- Simpan ----------
   const namaFolder = preset === "avatar" ? "avatar" : preset === "cover" ? "cover" : "artikel";
   const url = await simpanFile(processed, namaFolder, "webp");
 
@@ -90,28 +97,54 @@ export async function simpanUploadGambar(
 }
 
 /**
- * IMPLEMENTASI PENYIMPANAN (timeout fokus: local disk).
- * Ganti bagian ini untuk Cloudinary/S3 — return harus URL publik.
+ * IMPLEMENTASI PENYIMPANAN.
+ * Return harus URL publik yang bisa dipakai langsung di <img src>.
  */
 async function simpanFile(bytes: Buffer, folder: string, ext: string): Promise<string> {
-  // provider = local
-  const dir = path.join(process.cwd(), "public", "uploads", folder);
-  await fs.mkdir(dir, { recursive: true });
-
   const stamp = new Date()
     .toISOString()
     .replace(/[:.]/g, "-")
     .slice(0, 19);
   const acak = Math.random().toString(36).slice(2, 8);
-  const fileName = `${stamp}-${acak}.${ext}`;
+  const fileName = `${folder}/${stamp}-${acak}.${ext}`;
 
-  await fs.writeFile(path.join(dir, fileName), bytes);
-  return `/uploads/${folder}/${fileName}`;
+  // ---------- Provider: Vercel Blob ----------
+  if (pakaiBlob()) {
+    const { put } = await import("@vercel/blob");
+    const blob = await put(fileName, bytes, {
+      access: "public",
+      contentType: "image/webp",
+      addRandomSuffix: false,
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    });
+    return blob.url;
+  }
+
+  // ---------- Provider: lokal (development) ----------
+  const dir = path.join(process.cwd(), "public", "uploads", folder);
+  await fs.mkdir(dir, { recursive: true });
+  await fs.writeFile(path.join(dir, path.basename(fileName)), bytes);
+  return `/uploads/${fileName}`;
 }
 
-/** Hapus file lokal bila artikel/gambar dihapus (best effort). */
+/** Hapus gambar bila artikel/gambar dihapus (best effort). */
 export async function hapusFileLokal(url?: string | null) {
-  if (!url || !url.startsWith("/uploads/")) return;
+  if (!url) return;
+
+  // ---------- Vercel Blob ----------
+  if (url.startsWith("http") && url.includes(".blob.vercel-storage.com")) {
+    if (!pakaiBlob()) return;
+    try {
+      const { del } = await import("@vercel/blob");
+      await del(url, { token: process.env.BLOB_READ_WRITE_TOKEN });
+    } catch {
+      // abaikan jika file sudah tidak ada
+    }
+    return;
+  }
+
+  // ---------- Lokal ----------
+  if (!url.startsWith("/uploads/")) return;
   try {
     const filePath = path.join(process.cwd(), "public", url);
     await fs.unlink(filePath);

@@ -14,9 +14,6 @@
 
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import sharp from "sharp";
-import path from "node:path";
-import fs from "node:fs";
 
 const prisma = new PrismaClient();
 
@@ -35,44 +32,15 @@ function readingTime(text: string) {
   return Math.max(1, Math.ceil(words / 200));
 }
 
-/** Escape karakter khusus agar SVG valid. */
-function esc(text: string) {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+/**
+ * Cover artikel contoh sudah tersedia sebagai file statis di `public/covers`
+ * (ikut ter-commit, jadi aman dipakai di serverless/read-only seperti Vercel).
+ * Ganti file tersebut dengan foto asli sekolah bila sudah ada.
+ */
+function coverPath(fileName: string) {
+  return `/covers/${fileName}`;
 }
 
-/** Cover placeholder: gradien navy + judul artikel (bisa diganti foto asli). */
-async function makeCover(fileName: string, judulBaris1: string, judulBaris2: string) {
-  const dir = path.join(process.cwd(), "public", "uploads", "seed");
-  fs.mkdirSync(dir, { recursive: true });
-  const filePath = path.join(dir, fileName);
-
-  const svg = Buffer.from(`
-    <svg width="1200" height="675" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#1E3A8A"/>
-          <stop offset="55%" stop-color="#0B1F4B"/>
-          <stop offset="100%" stop-color="#07142F"/>
-        </linearGradient>
-      </defs>
-      <rect width="1200" height="675" fill="url(#g)"/>
-      <circle cx="1040" cy="110" r="260" fill="#ffffff" opacity="0.05"/>
-      <circle cx="160" cy="600" r="200" fill="#FBBF24" opacity="0.10"/>
-      <rect x="80" y="150" width="90" height="8" rx="4" fill="#FBBF24"/>
-      <text x="80" y="215" font-family="Arial, sans-serif" font-size="22" letter-spacing="8" fill="#FBBF24">SD NEGERI 2 KEMUTUG LOR</text>
-      <text x="80" y="330" font-family="Georgia, 'Times New Roman', serif" font-size="64" font-weight="bold" fill="#ffffff">${esc(judulBaris1)}</text>
-      <text x="80" y="410" font-family="Georgia, 'Times New Roman', serif" font-size="64" font-weight="bold" fill="#ffffff">${esc(judulBaris2)}</text>
-      <text x="80" y="585" font-family="Arial, sans-serif" font-size="20" letter-spacing="6" fill="#ffffff" opacity="0.55">KRIDA WACANA · PORTAL ARTIKEL SEKOLAH</text>
-      <text x="1040" y="585" font-family="Georgia, serif" font-size="30" font-weight="bold" fill="#ffffff" opacity="0.25">KW</text>
-    </svg>
-  `);
-
-  await sharp(svg).png().toFile(filePath);
-  return `/uploads/seed/${fileName}`;
-}
 
 /** Bersihkan konten lama agar seed bisa dijalankan berulang. */
 async function resetKonten() {
@@ -84,17 +52,6 @@ async function resetKonten() {
   await prisma.article.deleteMany();
   await prisma.tag.deleteMany();
   await prisma.category.deleteMany();
-
-  // Hapus cover seed lama, sisakan hanya cover baru
-  const dir = path.join(process.cwd(), "public", "uploads", "seed");
-  const simpan = new Set(["cover-profil-sekolah.png", "cover-kegiatan-sekolah.png"]);
-  if (fs.existsSync(dir)) {
-    for (const file of fs.readdirSync(dir)) {
-      if (file.startsWith("cover-") && file.endsWith(".png") && !simpan.has(file)) {
-        fs.unlinkSync(path.join(dir, file));
-      }
-    }
-  }
 }
 
 async function main() {
@@ -186,8 +143,7 @@ async function main() {
       kategori: "Profil Sekolah",
       daysAgo: 2,
       views: 0,
-      cover: ["cover-profil-sekolah.png", "Profil Sekolah", "di Lereng Slamet"],
-      tags: ["Profil Sekolah", "Baturraden", "Banyumas"],
+      cover: ["cover-profil-sekolah.png", "Profil Sekolah", "di Lereng Slamet"],      tags: ["Profil Sekolah", "Baturraden", "Banyumas"],
       content: [
         "<p>SD Negeri 2 Kemutug Lor adalah sekolah dasar negeri yang berada di wilayah Kecamatan Baturraden, Kabupaten Banyumas, Jawa Tengah. Sekolah ini menjadi tempat anak-anak sekitar menimba ilmu setiap hari, dengan suasana khas desa di lereng Gunung Slamet.</p>",
         "<h2>Lokasi dan Lingkungan Belajar</h2>",
@@ -231,7 +187,7 @@ async function main() {
   for (const d of artikelData) {
     const category = kategoriMap.get(d.kategori)!;
     const slug = slugify(d.title);
-    const cover = await makeCover(d.cover[0], d.cover[1], d.cover[2]);
+    const cover = coverPath(d.cover[0]);
     const publishedAt = new Date(Date.now() - d.daysAgo * 86_400_000);
 
     await prisma.article.create({

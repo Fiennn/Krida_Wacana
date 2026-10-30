@@ -5,13 +5,16 @@ const nextConfig = {
       // Foto profil yang berasal dari Google OAuth (diizinkan untuk Avatar)
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
       { protocol: "https", hostname: "ssl.gstatic.com" },
+      // Gambar hasil unggahan di produksi (Vercel Blob)
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
       // Untuk gambar placeholder dari server lokal secara aman
       { protocol: "http", hostname: "localhost" },
     ],
     // Foto yang diunggah ke /public/uploads disajikan langsung (bukan unoptimized)
     formats: ["image/webp"],
   },
-  // Tombol "Mulai" saat prisma generate dijalankan otomatis lewat script "build"
+  // sharp dipakai di server (upload-service) — jangan di-bundle ulang
+  serverExternalPackages: ["sharp"],
   eslint: {
     ignoreDuringBuilds: true,
   },

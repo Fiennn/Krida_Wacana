@@ -1,7 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import { z } from "zod";
 import { authConfig } from "@/lib/auth.config";
 import { prisma } from "@/lib/prisma";
@@ -9,16 +8,11 @@ import { loginSchema } from "@/lib/validation";
 
 /**
  * Konfigurasi lengkap Auth.js:
- * - PrismaAdapter untuk otomatis membuat/ menghitung user saat login Google.
- * - Provider Credentials (email + password) untuk login manual.
- * - Sesi disimpan sebagai JWT di cookie (strategi "jwt"), sedangkan
- *   data user/account tetap tersimpan permanen di database lewat adapter.
- *   (Catatan: provider Credentials tidak didukung strategi "database",
- *   pendekatan jwt+adapter adalah pola resmi Auth.js untuk kombinasi ini.)
+ * - Provider Credentials (email + password) untuk login akun internal/demo.
+ * - Sesi disimpan sebagai JWT di cookie (strategi "jwt") tanpa butuh database adapter eksternal.
  */
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  adapter: PrismaAdapter(prisma),
   providers: [
     ...authConfig.providers,
     Credentials({
