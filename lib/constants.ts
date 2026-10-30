@@ -63,7 +63,7 @@ export const FOOTER_COLUMNS = [
 
 /** Nama file logo (dipakai BrandLogo, favicon, dan og:image). */
 export const LOGO_FILES = {
-  tutWuri: "/logo/tut-wuri-handayani.png",
+  tutWuri: "/logo/tut-wuri-handayani.webp",
   sekolah: "/logo/sdn2-kemutug-lor.png",
   krida: "/logo/krida-wacana.png",
 } as const;
