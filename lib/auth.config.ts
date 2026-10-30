@@ -79,9 +79,9 @@ export const authConfig = {
       if (path.startsWith(jalurAdmin)) {
         return role === "ADMIN";
       }
-      // Menulis hanya untuk guru/siswa yang disetujui admin
+      // Menulis untuk semua user yang sudah login
       if (path.startsWith(jalurTulis)) {
-        return role === "ADMIN" || role === "PENULIS";
+        return isLoggedIn;
       }
       if (jalurLogin.some((p) => path.startsWith(p))) {
         return isLoggedIn;
