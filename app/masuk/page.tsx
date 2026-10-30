@@ -94,8 +94,8 @@ export default async function MasukPage({ searchParams }: PageProps) {
           <p className="font-bold text-amber-brand">🔑 Akun Langsung Pakai (Bisa Nulis):</p>
           <div className="mt-2.5 space-y-1.5 text-white/75">
             <div className="rounded-lg bg-white/5 p-2">
-              <span className="font-semibold text-white">Akun Guru (Penulis):</span>
-              <p className="font-mono text-amber-brand">Email: nadia@example.com</p>
+              <span className="font-semibold text-white">Akun Guru / Penulis (Reni Sudiatun):</span>
+              <p className="font-mono text-amber-brand">Email: reni@example.com</p>
               <p className="font-mono text-amber-brand">Password: penulis123</p>
             </div>
             <div className="rounded-lg bg-white/5 p-2">

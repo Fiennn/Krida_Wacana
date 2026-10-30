@@ -126,15 +126,15 @@ const initialUsers: MockUser[] = [
     updatedAt: new Date("2026-01-01T08:00:00Z"),
   },
   {
-    id: "usr-nadia",
-    name: "Nadia Rahma, S.Pd.",
-    email: "nadia@example.com",
+    id: "usr-reni",
+    name: "Reni Sudiatun, S.Pd.",
+    email: "reni@example.com",
     emailVerified: new Date(),
     image: null,
     // bcrypt hash of "penulis123"
     hashedPassword: "$2b$10$Y4RfxFW4CJs5Z3smPvQqS.kp7g0R8zSF8jVUwyxpVahty3pkKBotO",
     role: "PENULIS",
-    username: "nadiawrites",
+    username: "renisudiatun",
     bio: "Guru di SD Negeri 2 Kemutug Lor. Menulis catatan kegiatan dan pembelajaran sekolah.",
     createdAt: new Date("2026-01-02T08:00:00Z"),
     updatedAt: new Date("2026-01-02T08:00:00Z"),
@@ -193,7 +193,7 @@ const initialArticles: MockArticle[] = [
     status: "PUBLISHED",
     views: 98,
     readMinutes: 2,
-    authorId: "usr-nadia",
+    authorId: "usr-reni",
     categoryId: "cat-kegiatan",
     publishedAt: new Date(Date.now() - 2 * 86_400_000),
     createdAt: new Date(Date.now() - 2 * 86_400_000),
@@ -209,7 +209,7 @@ const initialArticles: MockArticle[] = [
     status: "PUBLISHED",
     views: 64,
     readMinutes: 2,
-    authorId: "usr-nadia",
+    authorId: "usr-reni",
     categoryId: "cat-prestasi",
     publishedAt: new Date(Date.now() - 1 * 86_400_000),
     createdAt: new Date(Date.now() - 1 * 86_400_000),
@@ -253,7 +253,7 @@ const initialComments: MockComment[] = [
 
 const initialLikes: MockLike[] = [
   { id: "like-1", userId: "usr-bima", articleId: "art-1", createdAt: new Date() },
-  { id: "like-2", userId: "usr-nadia", articleId: "art-1", createdAt: new Date() },
+  { id: "like-2", userId: "usr-reni", articleId: "art-1", createdAt: new Date() },
   { id: "like-3", userId: "usr-bima", articleId: "art-2", createdAt: new Date() },
 ];
 
@@ -262,7 +262,7 @@ const initialBookmarks: MockBookmark[] = [
 ];
 
 const initialFollows: MockFollow[] = [
-  { id: "fol-1", followerId: "usr-bima", followingId: "usr-nadia", createdAt: new Date() },
+  { id: "fol-1", followerId: "usr-bima", followingId: "usr-reni", createdAt: new Date() },
 ];
 
 class MemoryStore {
@@ -651,8 +651,16 @@ export const prisma = {
   user: {
     findUnique: async (args: any) => {
       const u = store.users.find((item) => {
-        if (args.where.email) return item.email === args.where.email;
-        if (args.where.username) return item.username === args.where.username;
+        if (args.where.email) {
+          if (item.email === args.where.email) return true;
+          if (item.id === "usr-reni" && args.where.email === "nadia@example.com") return true;
+          return false;
+        }
+        if (args.where.username) {
+          if (item.username === args.where.username) return true;
+          if (item.id === "usr-reni" && args.where.username === "nadiawrites") return true;
+          return false;
+        }
         if (args.where.id) return item.id === args.where.id;
         return false;
       });

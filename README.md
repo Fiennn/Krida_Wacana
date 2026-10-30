@@ -171,7 +171,7 @@ npm start
 | Peran     | Email                    | Password     |
 | --------- | ------------------------ | ------------ |
 | `ADMIN`   | `admin@kridawacana.id`   | `admin1234`  |
-| `PENULIS` | `nadia@example.com`      | `penulis123` |
+| `PENULIS` | `reni@example.com`       | `penulis123` |
 | `READER`  | `bima@example.com`       | `penulis123` |
 
 > Ganti password akun admin sebelum dipakai di lingkungan nyata.
