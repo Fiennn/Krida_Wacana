@@ -25,7 +25,7 @@ export default function HeaderClient({ user }: { user: UserProp }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <>
+    <header className="sticky top-0 z-40">
       {/* ---------- Top bar (navy gelap) ---------- */}
       <div className="bg-navy-dark">
         <div className="mx-auto flex h-8 max-w-7xl items-center justify-between px-4 text-[11px] text-white/70 sm:px-6">
@@ -173,6 +173,6 @@ export default function HeaderClient({ user }: { user: UserProp }) {
           </nav>
         )}
       </div>
-    </>
+    </header>
   );
 }

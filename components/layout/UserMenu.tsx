@@ -71,7 +71,7 @@ export default function UserMenu({
             {(user.name ?? "?").slice(0, 1).toUpperCase()}
           </span>
         )}
-        <span className="hidden max-w-28 truncate text-sm font-semibold text-white sm:block">
+        <span className="hidden max-w-44 truncate text-sm font-semibold text-white sm:block sm:max-w-56">
           {user.name ?? user.username}
         </span>
         <svg
@@ -90,7 +90,7 @@ export default function UserMenu({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-[calc(100%+10px)] z-50 w-60 overflow-hidden rounded-2xl border border-white/15 bg-navy-dark/95 shadow-glass backdrop-blur-xl animate-fade-in"
+          className="absolute right-0 top-[calc(100%+8px)] z-50 w-64 overflow-hidden rounded-2xl border border-white/20 bg-[#07142f] shadow-2xl backdrop-blur-xl animate-fade-in"
         >
           {/* Kunci identitas */}
           <div className="border-b border-white/10 px-4 py-3">

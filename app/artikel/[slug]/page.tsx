@@ -221,6 +221,12 @@ export default async function ArticleDetailPage({ params }: PageProps) {
             </div>
           </div>
         </div>
+
+        {/* Transisi gradasi halus ke latar belakang halaman agar tidak terpotong kaku */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-b from-transparent via-[#071638]/40 to-surface-muted"
+        />
       </section>
 
       {/* ================= KONTEN UTAMA ARTIKEL ================= */}
