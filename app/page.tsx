@@ -11,6 +11,7 @@ import {
 import ArticleCard from "@/components/article/ArticleCard";
 import Pagination from "@/components/ui/Pagination";
 import { gradientForCategory } from "@/lib/category-style";
+import { auth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,7 @@ export default async function HomePage({ searchParams }: PageProps) {
   const kategoriSlugAktif = params.kategori || undefined;
   const urutanAktif = params.urutan === "populer" ? "populer" : "terbaru";
 
-  const [statistik, populer, kategoriList, daftar] = await Promise.all([
+  const [statistik, populer, kategoriList, daftar, session] = await Promise.all([
     getSiteStats(),
     getPopularArticles(5),
     getCategoriesWithCount(),
@@ -34,6 +35,7 @@ export default async function HomePage({ searchParams }: PageProps) {
       kategoriSlug: kategoriSlugAktif,
       urutan: urutanAktif,
     }),
+    auth(),
   ]);
 
   const kategoriSudahDipilih = kategoriList.find((k) => k.slug === kategoriSlugAktif);
@@ -275,28 +277,80 @@ export default async function HomePage({ searchParams }: PageProps) {
             height={360}
             className="pointer-events-none absolute -left-12 -top-14 select-none opacity-5"
           />
-          <h2 className="font-serif text-2xl font-bold sm:text-3xl">
-            Ikut menulis untuk sekolah? <span className="text-amber-brand">Mulai dari sini.</span>
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-white/70 sm:text-base">
-            Daftar akun, lalu minta izin menulis kepada admin sekolah. Guru dan
-            siswa terpilih dapat membagikan kegiatan, prestasi, dan karya untuk
-            dibaca seluruh warga sekolah. {SITE_TAGLINE}
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/daftar"
-              className="inline-flex h-11 items-center justify-center rounded-full bg-amber-brand px-7 text-sm font-bold text-navy-dark transition-all hover:bg-amber-highlight active:scale-95"
-            >
-              Daftar Akun
-            </Link>
-            <Link
-              href="/masuk"
-              className="inline-flex h-11 items-center justify-center rounded-full border border-white/25 bg-white/10 px-7 text-sm font-semibold text-white backdrop-blur transition-all hover:border-white/40 hover:bg-white/20"
-            >
-              Masuk
-            </Link>
-          </div>
+          {session?.user ? (
+            session.user.role === "ADMIN" || session.user.role === "PENULIS" ? (
+              <>
+                <h2 className="font-serif text-2xl font-bold sm:text-3xl">
+                  Halo, <span className="text-amber-brand">{session.user.name || session.user.username}</span>! Siap berbagi kabar sekolah?
+                </h2>
+                <p className="mx-auto mt-3 max-w-xl text-sm text-white/70 sm:text-base">
+                  Kamu sudah masuk sebagai <strong>Penulis</strong>. Buat artikel baru mengenai kegiatan belajar, prestasi, atau karya siswa untuk dibaca seluruh warga sekolah.
+                </p>
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                  <Link
+                    href="/tulis"
+                    className="inline-flex h-11 items-center justify-center rounded-full bg-amber-brand px-7 text-sm font-bold text-navy-dark shadow-md transition-all hover:bg-amber-highlight active:scale-95"
+                  >
+                    ✍️ Tulis Artikel Baru
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className="inline-flex h-11 items-center justify-center rounded-full border border-white/25 bg-white/10 px-7 text-sm font-semibold text-white backdrop-blur transition-all hover:border-white/40 hover:bg-white/20"
+                  >
+                    Tulisan Saya
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="font-serif text-2xl font-bold sm:text-3xl">
+                  Halo, <span className="text-amber-brand">{session.user.name || session.user.username}</span>!
+                </h2>
+                <p className="mx-auto mt-3 max-w-xl text-sm text-white/70 sm:text-base">
+                  Kamu sudah masuk dengan status <strong>Pembaca</strong>. Ingin menulis artikel sekolah? Hubungi admin sekolah untuk mengaktifkan izin menulis pada akunmu.
+                </p>
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                  <Link
+                    href="/tersimpan"
+                    className="inline-flex h-11 items-center justify-center rounded-full bg-amber-brand px-7 text-sm font-bold text-navy-dark transition-all hover:bg-amber-highlight active:scale-95"
+                  >
+                    Artikel Tersimpan
+                  </Link>
+                  <Link
+                    href="/profil"
+                    className="inline-flex h-11 items-center justify-center rounded-full border border-white/25 bg-white/10 px-7 text-sm font-semibold text-white backdrop-blur transition-all hover:border-white/40 hover:bg-white/20"
+                  >
+                    Profil Saya
+                  </Link>
+                </div>
+              </>
+            )
+          ) : (
+            <>
+              <h2 className="font-serif text-2xl font-bold sm:text-3xl">
+                Ikut menulis untuk sekolah? <span className="text-amber-brand">Mulai dari sini.</span>
+              </h2>
+              <p className="mx-auto mt-3 max-w-xl text-sm text-white/70 sm:text-base">
+                Daftar akun, lalu minta izin menulis kepada admin sekolah. Guru dan
+                siswa terpilih dapat membagikan kegiatan, prestasi, dan karya untuk
+                dibaca seluruh warga sekolah. {SITE_TAGLINE}
+              </p>
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                <Link
+                  href="/daftar"
+                  className="inline-flex h-11 items-center justify-center rounded-full bg-amber-brand px-7 text-sm font-bold text-navy-dark transition-all hover:bg-amber-highlight active:scale-95"
+                >
+                  Daftar Akun
+                </Link>
+                <Link
+                  href="/masuk"
+                  className="inline-flex h-11 items-center justify-center rounded-full border border-white/25 bg-white/10 px-7 text-sm font-semibold text-white backdrop-blur transition-all hover:border-white/40 hover:bg-white/20"
+                >
+                  Masuk
+                </Link>
+              </div>
+            </>
+          )}
         </div>
       </section>
     </>

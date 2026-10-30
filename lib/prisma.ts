@@ -323,9 +323,7 @@ const globalForStore = globalThis as unknown as {
 };
 
 const store = globalForStore.__krida_memory_store ?? new MemoryStore();
-if (process.env.NODE_ENV !== "production") {
-  globalForStore.__krida_memory_store = store;
-}
+globalForStore.__krida_memory_store = store;
 
 // ==============================================================
 // PRISMA MOCK IMPLEMENTATION
