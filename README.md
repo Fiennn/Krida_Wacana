@@ -24,7 +24,7 @@ sedangkan penulisan hanya untuk akun yang sudah disetujui admin sekolah
 9. [Akun hasil seed](#akun-hasil-seed)
 10. [Mengganti logo sekolah](#mengganti-logo-sekolah)
 11. [Struktur folder penting](#struktur-folder-penting)
-12. [Catatan produksi](#catatan-produksi)
+12. [Deploy ke Vercel](#deploy-ke-vercel)
 
 ---
 
@@ -106,14 +106,19 @@ Isi `.env` (lihat bagian berikut), lalu siapkan database dan jalankan.
 
 ## Konfigurasi environment
 
-| Variabel               | Wajib | Keterangan                                             |
-| ---------------------- | :---: | ------------------------------------------------------ |
-| `DATABASE_URL`         |  ya   | `file:./dev.db` untuk development (SQLite)             |
-| `AUTH_SECRET`          |  ya   | String acak minimal 32 karakter                        |
-| `AUTH_URL`             |  ya   | `http://localhost:3000` saat development               |
-| `AUTH_TRUST_HOST`      |  ya   | `true`                                                 |
-| `GOOGLE_CLIENT_ID`     | tidak | Kosong/placeholder: login Google dinonaktifkan otomatis |
-| `GOOGLE_CLIENT_SECRET` | tidak | Pasangan dari `GOOGLE_CLIENT_ID`                       |
+| Variabel                | Wajib | Keterangan                                                       |
+| ----------------------- | :---: | ---------------------------------------------------------------- |
+| `DATABASE_URL`          |  ya   | Connection string PostgreSQL (Neon). Lihat bagian Deploy ke Vercel |
+| `AUTH_SECRET`           |  ya   | String acak minimal 32 karakter                                  |
+| `AUTH_URL`              |  ya   | `http://localhost:3000` saat development                         |
+| `AUTH_TRUST_HOST`       |  ya   | `true`                                                           |
+| `BLOB_READ_WRITE_TOKEN` | tidak | Token Vercel Blob. Kosong = gambar disimpan ke `public/uploads` (lokal) |
+| `GOOGLE_CLIENT_ID`      | tidak | Kosong/placeholder: login Google dinonaktifkan otomatis           |
+| `GOOGLE_CLIENT_SECRET`  | tidak | Pasangan dari `GOOGLE_CLIENT_ID`                                 |
+
+Aplikasi ini **memakai PostgreSQL** (bukan SQLite), baik untuk development
+maupun produksi. Database gratis bisa dibuat di [Neon](https://neon.tech) —
+satu database yang sama dapat dipakai untuk lokal dan Vercel.
 
 Membuat `AUTH_SECRET`:
 
@@ -152,8 +157,11 @@ menaikkan peran lewat `/admin/pengguna` bila ingin memberi izin menulis.
 ## Database: migrate dan seed
 
 ```bash
-# Terapkan migrasi
+# Development: buat/perbarui migrasi dari perubahan schema
 npm run db:migrate
+
+# Produksi (Vercel / Neon): terapkan migrasi yang sudah ada, tanpa prompt
+npm run db:deploy
 
 # Isi data awal (7 kategori, 2 artikel sekolah, akun contoh)
 npm run db:seed
@@ -165,6 +173,10 @@ npx prisma migrate reset --force
 Seed bersifat *idempotent* untuk konten: komentar, suka, simpanan, follow,
 tag, artikel, dan kategori lama dihapus lalu dibuat ulang. Data pengguna
 tidak dihapus (akun seed diperbarui lewat `upsert`).
+
+> **Hati-hati:** `db:seed` menghapus seluruh artikel dan kategori sebelum
+> membuat ulang data contoh. Jangan dijalankan pada database produksi yang
+> sudah berisi artikel asli sekolah.
 
 Lihat data dengan `npm run db:studio`.
 
@@ -178,6 +190,12 @@ npm run dev            # http://localhost:3000
 npm run build
 npm start
 ```
+
+> `npm run build` dan `npm start` memerlukan `DATABASE_URL` yang valid.
+> Gambar yang diunggah saat `npm start` disimpan ke `public/uploads`, tetapi
+> Next.js hanya menyajikan file `public/` yang sudah ada saat build — jadi
+> untuk mencoba unggah gambar gunakan `npm run dev`, atau isi
+> `BLOB_READ_WRITE_TOKEN` agar memakai Vercel Blob.
 
 ## Akun hasil seed
 
@@ -246,16 +264,96 @@ prisma/
   schema.prisma            Skema database (role default READER)
   seed.ts                  Data awal sekolah
 public/logo/               Tiga file logo (ganti dengan logo resmi)
+public/covers/             Cover contoh untuk 2 artikel seed
 ```
 
-## Catatan produksi
+## Deploy ke Vercel
 
-- Ganti `DATABASE_URL` ke PostgreSQL bila diperlukan, lalu jalankan
-  `npx prisma migrate deploy`.
-- Isi `AUTH_URL` dengan domain final (HTTPS) dan `AUTH_SECRET` yang kuat.
-- Folder `public/uploads/` harus dapat ditulis oleh proses server
-  (atau gunakan object storage untuk deployment serverless).
-- Jangan commit `.env`, `prisma/dev.db`, dan isi `public/uploads/`.
+Aplikasi ini memakai **PostgreSQL** dan **Vercel Blob**, karena filesystem di
+Vercel bersifat sementara/read-only (SQLite dan folder `public/uploads` tidak
+bisa dipakai di sana).
+
+### 1. Siapkan database (Neon, gratis)
+
+1. Buka <https://neon.tech> lalu daftar/masuk.
+2. **Create project** → pilih region terdekat (mis. *Singapore*).
+3. Salin **connection string**. Pakai yang **langsung / direct** (nama host
+   tanpa `-pooler`), bentuknya:
+
+   ```env
+   DATABASE_URL="postgresql://user:password@ep-xxxx.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+   ```
+
+   Connection string yang mengandung `-pooler` bisa membuat
+   `prisma migrate deploy` gagal saat build.
+
+### 2. Siapkan penyimpanan gambar (Vercel Blob)
+
+1. Buka dashboard Vercel → project Anda → tab **Storage**.
+2. **Create Database / Store** → pilih **Blob** → Create.
+3. Salin **`BLOB_READ_WRITE_TOKEN`** (otomatis ditambahkan ke project bila
+   Blob dibuat dari dashboard project yang sama).
+
+### 3. Isi Environment Variables di Vercel
+
+Project → **Settings** → **Environment Variables** (Production + Preview):
+
+| Nama                    | Nilai                                                        |
+| ----------------------- | ------------------------------------------------------------ |
+| `DATABASE_URL`          | connection string Neon (direct, lihat langkah 1)             |
+| `AUTH_SECRET`           | string acak ≥ 32 karakter                                    |
+| `AUTH_URL`              | `https://krida-wacana.vercel.app` (domain final Anda)        |
+| `AUTH_TRUST_HOST`       | `true`                                                       |
+| `BLOB_READ_WRITE_TOKEN` | token dari langkah 2                                         |
+| `GOOGLE_CLIENT_ID`      | opsional (lihat Setup Google OAuth)                          |
+| `GOOGLE_CLIENT_SECRET`  | opsional                                                     |
+
+`DATABASE_URL` **wajib** diisi. Tanpa variabel ini aplikasi akan gagal
+dengan error "Environment variable not found: DATABASE_URL".
+
+### 4. Deploy
+
+Vercel otomatis menjalankan script `vercel-build`, yaitu:
+
+```bash
+prisma generate && prisma migrate deploy && next build
+```
+
+Jadi tabel database dibuat/diperbarui otomatis setiap deploy.
+
+Bila deploy pertama masih kosong datanya, isi data awal sekali dari komputer
+Anda (mengarah ke database Neon yang sama):
+
+```bash
+# pastikan .env berisi DATABASE_URL Neon, lalu:
+npm run db:deploy
+npm run db:seed
+```
+
+> `db:seed` menghapus artikel & kategori yang ada. Hanya jalankan sekali di
+> awal, sebelum artikel asli sekolah dibuat.
+
+### 5. Google OAuth (bila dipakai)
+
+Tambahkan URL produksi di Google Cloud Console:
+
+- Authorized JavaScript origin: `https://krida-wacana.vercel.app`
+- Authorized redirect URI:
+  `https://krida-wacana.vercel.app/api/auth/callback/google`
+
+### Checklist bila muncul "Application error"
+
+1. Pastikan `DATABASE_URL` sudah diisi di Vercel (Settings → Environment Variables).
+2. Pastikan connection string memakai host **direct** (tanpa `-pooler`).
+3. Buka **Deployments → (deployment terbaru) → Functions/Logs** untuk melihat
+   pesan error aslinya, lalu **Redeploy** setelah env diubah (env baru hanya
+   terbaca pada deployment berikutnya).
+4. Pastikan `AUTH_URL` sama dengan domain yang dipakai (https, tanpa garis
+   miring di akhir).
+
+> Jangan pernah menulis connection string atau token langsung di dalam kode.
+> Simpan hanya di `.env` (lokal, sudah di-*gitignore*) dan di dashboard Vercel.
+
 
 ---
 

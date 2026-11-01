@@ -14,9 +14,8 @@ import { loginSchema } from "@/lib/validation";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   trustHost: true,
-  secret:
-    process.env.AUTH_SECRET ||
-    "dev-only-secret-krida-wacana-7d1f39b2c8a4e6f0b5d2a9c3e1f8b6d4",
+  // AUTH_SECRET wajib diisi lewat environment variable (.env / Vercel).
+  secret: process.env.AUTH_SECRET,
   providers: [
     ...authConfig.providers,
     Credentials({
